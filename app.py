@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from datetime import datetime
 import requests
 import os
+import csv
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -11,10 +12,30 @@ load_dotenv()
 CANVAS_API_TOKEN = os.getenv('CANVAS_API_TOKEN')
 TODOIST_API_TOKEN = os.getenv('TODOIST_API_TOKEN')
 CANVAS_BASE_URL = os.getenv('CANVAS_BASE_URL')
+COURSE_DECISIONS_CSV = 'decisions.csv'
 
 app = Flask(__name__)
 
-# Fetch courses from Canvas
+def load_course_decisions():
+    decisions = {}
+    try:
+        with open(COURSE_DECISIONS_CSV, mode='r') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                course_id, decision = row
+                decisions[course_id] = decision
+    except FileNotFoundError:
+        pass  # If CSV doesn't exist, just return an empty dictionary
+
+    return decisions
+
+# Save course decision to CSV
+def save_course_decision(course_id, decision):
+    with open(COURSE_DECISIONS_CSV, mode='a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([course_id, decision])
+
+# Fetch courses from Canvas and ask the user if they want to keep them
 @app.route('/show-all-courses', methods=['GET'])
 def fetch_canvas_courses():
     url = f"{CANVAS_BASE_URL}/api/v1/courses"
@@ -45,16 +66,35 @@ def fetch_canvas_courses():
         else:
             break
 
-    # Get current datetime
-    now = datetime.utcnow()
+    # Load course decisions from CSV
+    course_decisions = load_course_decisions()
+    active_courses = []
 
-    # Filter courses that have a name and are still active (end_at is in the future or None)
-    # active_courses = [
-    #     course for course in courses
-    #     if course.get('name') and (course.get('end_at') is None or datetime.strptime(course['end_at'], "%Y-%m-%dT%H:%M:%SZ") > now)
-    # ]
+    # Loop through the courses and ask if the user wants to keep each one
+    for course in courses:
+        course_id = str(course['id'])
+        course_name = course.get('name')
 
-    return courses
+        # Skip courses without a name
+        if not course_name:
+            continue
+
+        # Check if we've already saved a decision for this course
+        if course_id in course_decisions:
+            decision = course_decisions[course_id]
+        else:
+            # Ask the user if they want to keep this course (yes/no)
+            print(f"Do you want to keep the course '{course_name}'? (yes/no)")
+            decision = input().strip().lower()
+
+            # Save the decision to the CSV so we don't ask again
+            save_course_decision(course_id, decision)
+
+        # If the decision is 'yes', keep this course
+        if decision == 'yes':
+            active_courses.append(course)
+
+    return jsonify(active_courses)
 
 
 # Fetch assignments for a specific course
@@ -74,8 +114,9 @@ def fetch_course_assignments(course_id):
 # Fetch all assignments from all courses
 @app.route('/show-assignments', methods=['GET'])
 def fetch_all_assignments():
-    courses = fetch_canvas_courses()
+    courses = fetch_canvas_courses().get_json()
     tasks = []
+    now = datetime.utcnow()
 
     for course in courses:
         course_name = course['name']
@@ -85,11 +126,17 @@ def fetch_all_assignments():
         assignments = fetch_course_assignments(course_id)
 
         for assignment in assignments:
-            tasks.append({
-                'title': assignment['name'],
-                'due_date': assignment['due_at'],
-                'course_name': course_name
-            })
+            due_date_str = assignment.get('due_at')
+            if due_date_str:
+                due_date = datetime.strptime(due_date_str, "%Y-%m-%dT%H:%M:%SZ")
+                
+                # Only include assignments that are not past due
+                if due_date > now:
+                    tasks.append({
+                        'title': assignment['name'],
+                        'due_date': due_date_str,
+                        'course_name': course_name
+                    })
 
     return tasks
 
@@ -102,7 +149,7 @@ def add_task_to_todoist(task):
     }
 
     # Task content includes course name
-    task_content = f"{task['title']} #{task['course_name']} in {task['course_name']}" if task['course_name'] else task['title']
+    task_content = f"{task['title']} in {task['course_name']}" if task['course_name'] else task['title']
 
     data = {
         "content": task_content,
@@ -114,7 +161,7 @@ def add_task_to_todoist(task):
     return response.status_code == 200
 
 # Flask route to sync assignments
-@app.route('/sync-assignments', methods=['POST'])
+@app.route('/sync-assignments', methods=['GET'])
 def sync_assignments():
     # Fetch assignments from Canvas
     canvas_tasks = fetch_all_assignments()
