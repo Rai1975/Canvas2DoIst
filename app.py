@@ -21,23 +21,41 @@ def fetch_canvas_courses():
     headers = {
         "Authorization": f"Bearer {CANVAS_API_TOKEN}"
     }
-    response = requests.get(url, headers=headers)
+    
+    courses = []
+    while url:
+        response = requests.get(url, headers=headers)
 
-    if response.status_code == 200:
-        courses = response.json()
+        if response.status_code == 200:
+            # Append the current page of courses to the list
+            courses.extend(response.json())
 
-        # Get current datetime
-        now = datetime.utcnow()
+            # Check if there's a "next" page in the Link header
+            link_header = response.headers.get('Link', None)
+            if link_header:
+                links = link_header.split(',')
+                url = None
+                for link in links:
+                    if 'rel="next"' in link:
+                        # Extract the next page URL from the link header
+                        url = link[link.find('<')+1:link.find('>')]
+                        break
+            else:
+                url = None  # No more pages
+        else:
+            break
 
-        # Filter courses that have a name and are still active (end_at is in the future or None)
-        active_courses = [
-            course for course in courses
-            if course.get('name') and (course.get('end_at') is None or datetime.strptime(course['end_at'], "%Y-%m-%dT%H:%M:%SZ") > now)
-        ]
+    # Get current datetime
+    now = datetime.utcnow()
 
-        return active_courses
-    else:
-        return []
+    # Filter courses that have a name and are still active (end_at is in the future or None)
+    # active_courses = [
+    #     course for course in courses
+    #     if course.get('name') and (course.get('end_at') is None or datetime.strptime(course['end_at'], "%Y-%m-%dT%H:%M:%SZ") > now)
+    # ]
+
+    return courses
+
 
 # Fetch assignments for a specific course
 def fetch_course_assignments(course_id):
