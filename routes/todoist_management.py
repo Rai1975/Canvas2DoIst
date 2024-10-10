@@ -1,12 +1,12 @@
-# blueprints/todoist_management.py
+# routes/todoist_management.py
 from flask import Blueprint, jsonify
 import requests
+from config import TODOIST_API_TOKEN
 
 todoist_management_bp = Blueprint('todoist_management', __name__)
 
 # Add tasks to Todoist
 def add_task_to_todoist(task):
-    from main import TODOIST_API_TOKEN
 
     url = "https://api.todoist.com/rest/v2/tasks"
     headers = {
@@ -28,7 +28,7 @@ def add_task_to_todoist(task):
 # Flask route to sync assignments
 @todoist_management_bp.route('/sync-assignments', methods=['GET'])
 def sync_assignments():
-    from blueprints.assignment_management import fetch_all_assignments
+    from routes.assignment_management import fetch_all_assignments
 
     canvas_tasks = fetch_all_assignments().get_json()
     added_tasks = []

@@ -1,7 +1,8 @@
-# blueprints/course_management.py
+# routes/course_management.py
 from flask import Blueprint, jsonify
 import csv
-import os
+import requests
+from config import CANVAS_API_TOKEN, CANVAS_BASE_URL
 
 course_management_bp = Blueprint('course_management', __name__)
 COURSE_DECISIONS_CSV = 'decisions.csv'
@@ -29,7 +30,6 @@ def save_course_decision(course_id, decision):
 # Fetch courses from Canvas and ask the user if they want to keep them
 @course_management_bp.route('/show-all-courses', methods=['GET'])
 def fetch_canvas_courses():
-    from main import CANVAS_API_TOKEN, CANVAS_BASE_URL
     import requests
 
     url = f"{CANVAS_BASE_URL}/api/v1/courses"

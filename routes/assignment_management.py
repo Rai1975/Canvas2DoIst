@@ -1,12 +1,12 @@
-# blueprints/assignment_management.py
+# routes/assignment_management.py
 from flask import Blueprint, jsonify
 from datetime import datetime
+from config import CANVAS_API_TOKEN, CANVAS_BASE_URL
 
 assignment_management_bp = Blueprint('assignment_management', __name__)
 
 # Fetch assignments for a specific course
 def fetch_course_assignments(course_id):
-    from main import CANVAS_API_TOKEN, CANVAS_BASE_URL
     import requests
 
     url = f"{CANVAS_BASE_URL}/api/v1/courses/{course_id}/assignments"
@@ -24,7 +24,7 @@ def fetch_course_assignments(course_id):
 # Fetch all assignments from all courses
 @assignment_management_bp.route('/show-assignments', methods=['GET'])
 def fetch_all_assignments():
-    from blueprints.course_management import fetch_canvas_courses
+    from routes.course_management import fetch_canvas_courses
 
     courses = fetch_canvas_courses().get_json()
     tasks = []
