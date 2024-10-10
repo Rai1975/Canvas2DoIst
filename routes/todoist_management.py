@@ -5,8 +5,22 @@ from config import TODOIST_API_TOKEN
 
 todoist_management_bp = Blueprint('todoist_management', __name__)
 
+# Retrieve tasks from Todoist (to avoid duplication)
+def fetch_todoist_tasks():
+    url = "https://api.todoist.com/rest/v2/tasks"
+    headers = {
+        "Authorization": f"Bearer {TODOIST_API_TOKEN}"
+    }
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return []
+
 # Add tasks to Todoist
 def add_task_to_todoist(task):
+    existing_tasks = fetch_todoist_tasks()
 
     url = "https://api.todoist.com/rest/v2/tasks"
     headers = {
@@ -15,6 +29,13 @@ def add_task_to_todoist(task):
     }
 
     task_content = f"{task['title']} in {task['course_name']}" if task['course_name'] else task['title']
+
+    # Check if task already exists in
+    for existing_task in existing_tasks:
+        if existing_task['content'] == task_content:
+            # Task already exists, skip adding it
+            print(f"Task '{task_content}' already exists in Todoist. Skipping.")
+            return False
 
     data = {
         "content": task_content,
