@@ -1,6 +1,10 @@
-## CANVAS2DOIST 
+# CANVAS2DOIST 
 
 This is a work in progress.
+
+##### CURRENT TODO: 
+- Make course decisions more user friendly & potentially some UI elements.
+- Make environment better accessible.
 
 Here's a fun little script that's just for you if you use Todoist to keep track of your assignments from Canvas! It uses Canvas API and Todoist API to sync your assignments from canvas into todoist.
 
