@@ -5,6 +5,7 @@ This is a work in progress.
 ##### CURRENT TODO: 
 - Make course decisions more user friendly & potentially some UI elements.
 - Make environment better accessible.
+- Add bash and zsh scripts too.
 
 Here's a fun little script that's just for you if you use Todoist to keep track of your assignments from Canvas! It uses Canvas API and Todoist API to sync your assignments from canvas into todoist.
 
@@ -20,6 +21,14 @@ Navigate to your university's canvas landing page, it will usually be of the str
 2. Once you have all the keys inserted into the `.env` file, run the python script.
 3. Now, in your browser, navigate to `localhost:5000/sync-assignments`.
 4. Voila! Watch your tasks flow into todoist.
+
+##### Powershell Automation
+Now if you want to go crazy and set up the powershell script to automate the script with an alias,
+
+1. Open powershell
+2. Enter `notepad $profile`
+3. Paste the code from `powershell_profile.ps1` into your `$profile`
+4. Boom! Now source your profile by running `. $profile` and you're all set! 
 
 This is a jank solution to a problem I've been facing lately to solve my eternal laziness to fill in my todoist myself. This can and will be improved to have a better user experience, but I wanted to put this out there for anyone else facing the same issue. 
 
