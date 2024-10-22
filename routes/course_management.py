@@ -5,16 +5,17 @@ import requests
 from config import CANVAS_API_TOKEN, CANVAS_BASE_URL
 
 course_management_bp = Blueprint('course_management', __name__)
-COURSE_DECISIONS_CSV = 'decisions.csv'
+COURSE_DECISIONS_CSV = './decisions.csv'
 
 # Load course decisions from CSV
+@course_management_bp.route('/test-decisions', methods=['GET'])
 def load_course_decisions():
     decisions = {}
     try:
         with open(COURSE_DECISIONS_CSV, mode='r') as file:
             reader = csv.reader(file)
             for row in reader:
-                course_id, decision = row
+                course_id, course_name, decision = row
                 decisions[course_id] = decision
     except FileNotFoundError:
         pass  # If CSV doesn't exist, just return an empty dictionary
@@ -22,10 +23,10 @@ def load_course_decisions():
     return decisions
 
 # Save course decision to CSV
-def save_course_decision(course_id, decision):
+def save_course_decision(course_id, course_name, decision):
     with open(COURSE_DECISIONS_CSV, mode='a', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow([course_id, decision])
+        writer.writerow([course_id, course_name, decision])
 
 # Fetch courses from Canvas and ask the user if they want to keep them
 @course_management_bp.route('/show-all-courses', methods=['GET'])
@@ -68,14 +69,16 @@ def fetch_canvas_courses():
         if not course_name:
             continue
 
-        if course_id in course_decisions:
+        if course_id in course_decisions.keys():
             decision = course_decisions[course_id]
         else:
-            print(f"Do you want to keep the course '{course_name}'? (yes/no)")
-            decision = input().strip().lower()
-            save_course_decision(course_id, decision)
+            # By default, it saves courses as no. In order to change this
+            # go to 'decisions.csv' and change the 0s to 1s for all courses
+            # you want to keep. I will work on making this more user friendly.
+            decision = 0
+            save_course_decision(course_id, course_name, decision)
 
-        if decision == 'yes':
+        if decision == '0':
             active_courses.append(course)
 
     return jsonify(active_courses)
