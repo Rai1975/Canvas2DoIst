@@ -78,7 +78,7 @@ def fetch_canvas_courses():
             decision = 0
             save_course_decision(course_id, course_name, decision)
 
-        if decision == '0':
+        if decision == '1':
             active_courses.append(course)
 
     return jsonify(active_courses)
