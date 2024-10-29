@@ -3,6 +3,7 @@ function synclist {
     # Start the Flask app in a background job
 	Write-Host "Running Script..."
     $flaskJob = Start-Job -ScriptBlock {
+        cd PATH/TO/PROJECT_ROOT
         python -u "c:\Users\User\projects\Canvas2DoIst\app.py"
     }
 

@@ -1,5 +1,6 @@
 function synclist {
     # Start Flask app in the background
+    cd PATH/TO/APP_ROOT
     nohup python3 /path/to/your/app.py > flask_output.log 2>&1 &
     echo "Starting Script..."
 
