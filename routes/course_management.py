@@ -5,7 +5,7 @@ import requests
 from config import CANVAS_API_TOKEN, CANVAS_BASE_URL
 
 course_management_bp = Blueprint('course_management', __name__)
-COURSE_DECISIONS_CSV = './decisions.csv'
+COURSE_DECISIONS_CSV = "../decisions.csv"
 
 # Load course decisions from CSV
 @course_management_bp.route('/test-decisions', methods=['GET'])
@@ -16,7 +16,7 @@ def load_course_decisions():
             reader = csv.reader(file)
             for row in reader:
                 course_id, course_name, decision = row
-                decisions[course_id] = decision
+                decisions[course_id] = [decision, course_name]
     except FileNotFoundError:
         pass  # If CSV doesn't exist, just return an empty dictionary
 
@@ -70,7 +70,7 @@ def fetch_canvas_courses():
             continue
 
         if course_id in course_decisions.keys():
-            decision = course_decisions[course_id]
+            decision = course_decisions[course_id][0]
         else:
             # By default, it saves courses as no. In order to change this
             # go to 'decisions.csv' and change the 0s to 1s for all courses
