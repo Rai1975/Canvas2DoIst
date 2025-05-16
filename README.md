@@ -1,5 +1,12 @@
 # CANVAS2DOIST 
 
+<p align="center">
+  <img src="Todoist_logo.png" alt="todoist logo" width="350"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="logo-Canvas.png" alt="canvas logo" width="350"/>
+</p>
+
+
 This is a work in progress.
 
 ##### CURRENT TODO: 
@@ -38,10 +45,13 @@ Now if you want to go crazy and set up the powershell script to automate the scr
 Good news! I finally got around to actually making it more friendly, but still working on making it more elegant. However, here's how you can do it now:
 
 1. If you're done with a semester, or want to change up the classes selected, you can use the same interface you used to select classes when setting up.
-2. To do so, first `cd class-selection` and run `npm start`
-3. Now, go to `localhost:3000`, select courses
-4. Click done
-5. Now, when you run `localhost:5000/sync-assignments` (or sweet automation script ;) ), you're chilling!
+2. Start the flask server using `python app.py`
+3. To do so, first `cd class-selection` and run `npm start`
+4. Now, go to `localhost:3000`, select courses
+5. Click done
+6. Now, when you run `localhost:5000/sync-assignments` (or sweet automation script ;) ), you're chilling!
+
+![screenshot](image.png)
 
 This is a jank solution to a problem I've been facing lately to solve my eternal laziness to fill in my todoist myself. This can and will be improved to have a better user experience, but I wanted to put this out there for anyone else facing the same issue. 
 
