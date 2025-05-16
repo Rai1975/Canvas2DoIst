@@ -3,8 +3,8 @@
 This is a work in progress.
 
 ##### CURRENT TODO: 
-- Make course decisions more user friendly & potentially some UI elements.
-- Make environment better accessible.
+- Make course decisions more user friendly & potentially some UI elements : WIP, Simple UI to select desired and undesired courses.
+- Make environment better accessible : Unfortunately, I cannot create OAuth for Canvas without having admin access.
 - Add bash and zsh scripts too.
 
 Here's a fun little script that's just for you if you use Todoist to keep track of your assignments from Canvas! It uses Canvas API and Todoist API to sync your assignments from canvas into todoist.
