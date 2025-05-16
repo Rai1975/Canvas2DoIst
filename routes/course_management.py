@@ -1,11 +1,12 @@
 # routes/course_management.py
 from flask import Blueprint, jsonify
 import csv
+import os
 import requests
 from config import CANVAS_API_TOKEN, CANVAS_BASE_URL
 
 course_management_bp = Blueprint('course_management', __name__)
-COURSE_DECISIONS_CSV = "../decisions.csv"
+COURSE_DECISIONS_CSV = os.path.join(os.getcwd(), 'decisions.csv')
 
 # Load course decisions from CSV
 @course_management_bp.route('/test-decisions', methods=['GET'])
