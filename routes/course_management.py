@@ -1,5 +1,5 @@
 # routes/course_management.py
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 import csv
 import os
 import requests
@@ -9,7 +9,6 @@ course_management_bp = Blueprint('course_management', __name__)
 COURSE_DECISIONS_CSV = os.path.join(os.getcwd(), 'decisions.csv')
 
 # Load course decisions from CSV
-@course_management_bp.route('/test-decisions', methods=['GET'])
 def load_course_decisions():
     decisions = {}
     try:
@@ -83,3 +82,27 @@ def fetch_canvas_courses():
             active_courses.append(course)
 
     return jsonify(active_courses)
+
+@course_management_bp.route('/get-decisions', methods=['GET'])
+def get_decisions():
+    rows = []
+    try:
+        with open(COURSE_DECISIONS_CSV, mode='r') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                rows.append(row)
+    except FileNotFoundError:
+        pass  # Return empty list if file doesn't exist
+
+    return jsonify(rows)
+
+
+@course_management_bp.route('/save-decisions', methods=['POST'])
+def save_decisions():
+    data = request.json  # List of rows: [[id, name, 0/1], ...]
+
+    with open(COURSE_DECISIONS_CSV, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(data)
+
+    return jsonify({'status': 'success'})

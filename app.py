@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 import config  # Load environment variables
 from routes.course_management import course_management_bp
 from routes.assignment_management import assignment_management_bp
@@ -7,6 +8,7 @@ from routes.home import home_bp
 
 
 app = Flask(__name__)
+CORS(app)
 
 # Register routes
 app.register_blueprint(course_management_bp)
